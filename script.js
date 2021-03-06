@@ -1,7 +1,5 @@
 'use strict';
 
-// DOM links
-
 //      Dice & Button controls
 const diceEl = document.querySelector('.dice');
 const btnNewEl = document.querySelector('.btn--new');
@@ -9,22 +7,18 @@ const btnRollEl = document.querySelector('.btn--roll');
 const btnHoldEl = document.querySelector('.btn--hold');
 
 // Variables
-let score = [];
-let current = [];
+let totalScore = [];
+let currentScore = [];
 let activePlayer;
 
 // Functions
-function updateCurrent(player, points) {
-    document.getElementById(`current--${player}`).textContent = points;
-}
-
-function updateScore(player, points) {
-    document.getElementById(`score--${player}`).textContent = points;
+function update(field, player, points) {
+    document.getElementById(`${field}--${player}`).textContent = points;
 }
 
 function switchPlayer() {
-    current[activePlayer] = 0;
-    updateCurrent(activePlayer, current[activePlayer]);
+    currentScore[activePlayer] = 0;
+    update('current', activePlayer, currentScore[activePlayer]);
     activePlayer = 1 - activePlayer;
     document
         .querySelector(`.player--${activePlayer}`)
@@ -36,10 +30,10 @@ function switchPlayer() {
 
 function reset() {
     for (let i = 0; i < 2; i++) {
-        score[i] = 0;
-        current[i] = 0;
-        updateScore(i, current[i]);
-        updateCurrent(i, current[i]);
+        totalScore[i] = 0;
+        currentScore[i] = 0;
+        update('score', i, currentScore[i]);
+        update('current', i, currentScore[i]);
         document
             .querySelector(`.player--${i}`)
             .classList.remove('player--winner');
@@ -52,25 +46,21 @@ function reset() {
 }
 
 function rollDice() {
-    // 1. Generate a random dice roll.
     const diceRoll = Math.trunc(Math.random() * 6) + 1;
-    // 2. Display dice
     diceEl.classList.remove('hidden');
     diceEl.src = `dice-${diceRoll}.png`;
-
-    // 3. Check for 1-roll, if true, switch  player.
     if (diceRoll !== 1) {
-        current[activePlayer] += diceRoll;
-        updateCurrent(activePlayer, current[activePlayer]);
+        currentScore[activePlayer] += diceRoll;
+        update('current', activePlayer, currentScore[activePlayer]);
     } else {
         switchPlayer();
     }
 }
 
 function hold() {
-    score[activePlayer] += current[activePlayer];
-    updateScore(activePlayer, score[activePlayer]);
-    if (20 <= score[activePlayer]) {
+    totalScore[activePlayer] += currentScore[activePlayer];
+    update('score', activePlayer, totalScore[activePlayer]);
+    if (20 <= totalScore[activePlayer]) {
         document
             .querySelector(`.player--${activePlayer}`)
             .classList.remove('player--active');
