@@ -7,6 +7,7 @@ const btnRollEl = document.querySelector('.btn--roll');
 const btnHoldEl = document.querySelector('.btn--hold');
 
 // Variables
+const winningNumber = 100;
 let totalScore = [];
 let currentScore = [];
 let activePlayer;
@@ -60,7 +61,7 @@ function rollDice() {
 function hold() {
     totalScore[activePlayer] += currentScore[activePlayer];
     update('score', activePlayer, totalScore[activePlayer]);
-    if (20 <= totalScore[activePlayer]) {
+    if (winningNumber <= totalScore[activePlayer]) {
         document
             .querySelector(`.player--${activePlayer}`)
             .classList.remove('player--active');
