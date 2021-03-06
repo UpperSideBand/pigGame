@@ -2,7 +2,7 @@
 
 // DOM links
 
-//      Dice controls
+//      Dice & Button controls
 const diceEl = document.querySelector('.dice');
 const btnNewEl = document.querySelector('.btn--new');
 const btnRollEl = document.querySelector('.btn--roll');
@@ -11,7 +11,7 @@ const btnHoldEl = document.querySelector('.btn--hold');
 // Variables
 let score = [];
 let current = [];
-let pTurn;
+let activePlayer;
 
 // Functions
 function updateCurrent(player, points) {
@@ -22,15 +22,33 @@ function updateScore(player, points) {
     document.getElementById(`score--${player}`).textContent = points;
 }
 
+function switchPlayer() {
+    current[activePlayer] = 0;
+    updateCurrent(activePlayer, current[activePlayer]);
+    activePlayer = 1 - activePlayer;
+    document
+        .querySelector(`.player--${activePlayer}`)
+        .classList.add('player--active');
+    document
+        .querySelector(`.player--${1 - activePlayer}`)
+        .classList.remove('player--active');
+}
+
 function reset() {
     for (let i = 0; i < 2; i++) {
         score[i] = 0;
         current[i] = 0;
         updateScore(i, current[i]);
         updateCurrent(i, current[i]);
+        document
+            .querySelector(`.player--${i}`)
+            .classList.remove('player--winner');
     }
-    pTurn = Math.trunc(Math.random() * 2);
+    activePlayer = Math.trunc(Math.random() * 2);
     diceEl.classList.add('hidden');
+    btnHoldEl.classList.remove('hidden');
+    btnRollEl.classList.remove('hidden');
+    switchPlayer();
 }
 
 function rollDice() {
@@ -42,28 +60,35 @@ function rollDice() {
 
     // 3. Check for 1-roll, if true, switch  player.
     if (diceRoll !== 1) {
-        current[pTurn] += diceRoll;
-        updateCurrent(pTurn, current[pTurn]);
+        current[activePlayer] += diceRoll;
+        updateCurrent(activePlayer, current[activePlayer]);
     } else {
-        current[pTurn] = 0;
-        updateCurrent(pTurn, current[pTurn]);
-        pTurn = 1 - pTurn;
+        switchPlayer();
     }
 }
 
-function switchPlayer() {
-    score[pTurn] += current[pTurn];
-    current[pTurn] = 0;
-    updateCurrent(pTurn, current[pTurn]);
-    updateScore(pTurn, score[pTurn]);
-    pTurn = 1 - pTurn;
+function hold() {
+    score[activePlayer] += current[activePlayer];
+    updateScore(activePlayer, score[activePlayer]);
+    if (20 <= score[activePlayer]) {
+        document
+            .querySelector(`.player--${activePlayer}`)
+            .classList.remove('player--active');
+        document
+            .querySelector(`.player--${activePlayer}`)
+            .classList.add('player--winner');
+        diceEl.classList.add('hidden');
+        btnHoldEl.classList.add('hidden');
+        btnRollEl.classList.add('hidden');
+    } else {
+        switchPlayer();
+    }
 }
 
 // Event Handlers
-btnRollEl.addEventListener('click', rollDice);
 btnNewEl.addEventListener('click', reset);
-btnHoldEl.addEventListener('click', switchPlayer);
+btnRollEl.addEventListener('click', rollDice);
+btnHoldEl.addEventListener('click', hold);
 
 // Init
 reset();
-console.log(pTurn);
